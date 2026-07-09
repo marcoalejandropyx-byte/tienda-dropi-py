@@ -49,6 +49,7 @@ export default {
     if (url.pathname === "/api/products") return handleProducts(env);
     if (url.pathname === "/api/product") return handleProduct(env, url.searchParams.get("id"));
     if (url.pathname === "/api/order" && request.method === "POST") return handleOrder(env, request);
+    if (url.pathname === "/api/dropitest") return dropiTest(env);
     return env.ASSETS.fetch(request);
   },
 };
@@ -164,6 +165,32 @@ async function handleProduct(env, id) {
       category: p.productType || "General", available: true,
     } }, 200, { "Cache-Control": "public, max-age=120" });
   } catch (e) { return json({ ok: false, error: String(e) }); }
+}
+
+/* --------------- DIAGNÓSTICO API DROPI (buscar stock real) --------------- */
+async function dropiTest(env) {
+  const KEY = env.DROPI_KEY;
+  if (!KEY) return json({ error: "No hay DROPI_KEY cargada en Cloudflare" });
+  const candidates = [
+    ["POST", "https://api-v2.dropi.com.py/integrations/products"],
+    ["POST", "https://api-v2.dropi.com.py/products/index"],
+    ["POST", "https://api-v2.dropi.com.py/integration/products"],
+    ["POST", "https://app.dropi.com.py/api/integrations/products"],
+    ["GET", "https://api-v2.dropi.com.py/integrations/products?pageSize=2"],
+  ];
+  const out = [];
+  for (const [m, u] of candidates) {
+    try {
+      const r = await fetch(u, {
+        method: m,
+        headers: { "Content-Type": "application/json", "dropi-integration-key": KEY },
+        body: m === "POST" ? JSON.stringify({ scroll_infinite: true, order_by: "id", order_type: "DESC", pageSize: 2, startData: 0 }) : undefined,
+      });
+      const t = await r.text();
+      out.push({ url: u, method: m, status: r.status, snippet: t.slice(0, 260) });
+    } catch (e) { out.push({ url: u, method: m, error: String(e) }); }
+  }
+  return json({ tries: out });
 }
 
 /* --------------- CREAR PEDIDO CONTRA ENTREGA (Admin API) --------------- */
