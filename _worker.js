@@ -61,7 +61,6 @@ async function handleProducts(env) {
           price { amount currencyCode }
           compareAtPrice { amount }
           availableForSale
-          quantityAvailable
         } } }
       } }
     }
@@ -97,7 +96,7 @@ async function handleProducts(env) {
         price,
         old: compare > price ? compare : Math.round(price * 1.3),
         image: node.featuredImage ? node.featuredImage.url : "",
-        stock: v.availableForSale ? (v.quantityAvailable || 99) : 0,
+        stock: v.availableForSale ? 99 : 0,
         category: node.productType || "General",
         desc: (node.description || "").replace(/<[^>]*>/g, "").slice(0, 120),
         sales: "",
