@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es-PY">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Producto — DropiStore PY</title>
+<style>
+  :root{
+    --brand:#e8322d;--brand-dark:#b81e1a;--wa:#25d366;--wa-dark:#128c7e;
+    --ink:#16181d;--muted:#6b7280;--line:#e6e8ec;--bg:#f6f7f9;--card:#fff;
+    --ok:#1f9d55;--shadow:0 10px 34px rgba(20,24,31,.10);--radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none}
+  .container{max-width:1080px;margin:0 auto;padding:0 18px}
+
+  header.site{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;gap:14px;height:60px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+  .logo .dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),#ff7a45);display:grid;place-items:center;color:#fff;font-weight:900}
+  .back{margin-left:auto;font-size:14px;font-weight:700;color:var(--brand)}
+
+  .trust-strip{background:var(--ink);color:#fff;font-size:12.5px;text-align:center;padding:7px 12px}
+  .trust-strip b{color:#ffd36b}
+
+  .wrap{display:grid;grid-template-columns:1fr 1fr;gap:36px;padding:34px 0}
+  /* Gallery */
+  .gallery .main{background:#fff;border:1px solid var(--line);border-radius:var(--radius);aspect-ratio:1/1;overflow:hidden;display:grid;place-items:center}
+  .gallery .main img{width:100%;height:100%;object-fit:contain}
+  .thumbs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .thumbs img{width:66px;height:66px;object-fit:cover;border-radius:10px;border:2px solid var(--line);cursor:pointer;background:#fff}
+  .thumbs img.active{border-color:var(--brand)}
+
+  /* Info */
+  .cat{display:inline-block;font-size:12px;font-weight:800;color:var(--brand);background:#fff5f3;padding:5px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+  h1{font-size:30px;line-height:1.15;margin:14px 0 12px;letter-spacing:-.5px}
+  .price-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .price{font-size:34px;font-weight:900}
+  .old{font-size:18px;color:var(--muted);text-decoration:line-through}
+  .off{font-size:13px;font-weight:800;color:var(--ok);background:#e7f6ec;padding:4px 10px;border-radius:8px}
+  .stock{font-size:13.5px;font-weight:700;margin:8px 0 18px}
+  .stock.ok{color:var(--ok)} .stock.no{color:var(--brand)}
+
+  .cta{display:flex;flex-direction:column;gap:10px;margin:18px 0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:16px 22px;border-radius:14px;font-weight:800;font-size:16px;transition:.15s transform}
+  .btn:active{transform:scale(.98)}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;padding:16px;background:#fff;border:1px solid var(--line);border-radius:14px}
+  .benefits div{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;color:#374151}
+  .benefits .i{font-size:18px}
+
+  .desc-box{grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-top:6px}
+  .desc-box h2{font-size:20px;margin:0 0 14px}
+  .desc-box .content{font-size:15px;color:#374151}
+  .desc-box .content img{border-radius:12px;margin:12px 0}
+  .desc-box .content h1,.desc-box .content h2,.desc-box .content h3{font-size:17px;margin:16px 0 8px;color:var(--ink)}
+
+  .loading,.error{grid-column:1/-1;text-align:center;padding:80px 10px;color:var(--muted)}
+  .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;margin:0 auto 14px;animation:s 1s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+
+  footer.site{background:var(--ink);color:#c7ccd6;margin-top:26px;padding:26px 0;text-align:center;font-size:13px}
+
+  .wa-float{position:fixed;bottom:20px;left:20px;z-index:15;background:var(--wa);color:#fff;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 24px rgba(37,211,102,.5)}
+
+  @media(max-width:820px){
+    .wrap{grid-template-columns:1fr;gap:22px;padding:22px 0}
+    h1{font-size:24px}.price{font-size:28px}
+    .benefits{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="trust-strip">🚚 <b>Envío a todo Paraguay</b> · Pago contra entrega · Atención por WhatsApp</div>
+
+<header class="site">
+  <div class="container bar">
+    <a class="logo" href="/"><span class="dot">D</span> DropiStore PY</a>
+    <a class="back" href="/">← Volver al catálogo</a>
+  </div>
+</header>
+
+<main class="container">
+  <div class="wrap" id="wrap">
+    <div class="loading"><div class="spin"></div>Cargando producto…</div>
+  </div>
+</main>
+
+<a class="wa-float" id="waFloat" href="#" title="WhatsApp">💬</a>
+
+<footer class="site">© <span id="year"></span> DropiStore PY · Precios en Guaraníes (Gs)</footer>
+
+<script>
+const CONFIG = { whatsappNumber: "595981123456", currency: "Gs" };
+const fmt = n => CONFIG.currency + " " + Number(n||0).toLocaleString("es-PY");
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
+document.getElementById("year").textContent = new Date().getFullYear();
+
+function waLink(text){ return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(text)}`; }
+document.getElementById("waFloat").href = waLink("Hola! Quiero consultar por un producto 😊");
+
+async function load(){
+  const wrap = document.getElementById("wrap");
+  if(!id){ wrap.innerHTML = `<div class="error">Producto no especificado. <a href="/" style="color:var(--brand)">Volver</a></div>`; return; }
+  try{
+    const r = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
+    const j = await r.json();
+    if(!j.ok || !j.product){ throw new Error("no data"); }
+    render(j.product);
+  }catch(e){
+    wrap.innerHTML = `<div class="error">No pudimos cargar este producto.<br/><a href="/" style="color:var(--brand)">Volver al catálogo</a></div>`;
+  }
+}
+
+function render(p){
+  const off = p.old && p.old>p.price ? Math.round((1 - p.price/p.old)*100) : 0;
+  const imgs = (p.images && p.images.length) ? p.images : (p.image?[p.image]:[]);
+  const mainImg = imgs[0] || "";
+  const stockHtml = p.available
+    ? `<div class="stock ok">✅ Disponible · Envío a todo Paraguay</div>`
+    : `<div class="stock no">⚠️ Consultar disponibilidad por WhatsApp</div>`;
+
+  const waMsg = `Hola! Quiero pedir este producto:%0A%0A*${p.name}*%0APrecio: ${fmt(p.price)}%0A${location.href}`;
+
+  document.title = `${p.name} — DropiStore PY`;
+
+  document.getElementById("wrap").innerHTML = `
+    <div class="gallery">
+      <div class="main"><img id="mainImg" src="${mainImg}" alt="${p.name}"/></div>
+      ${imgs.length>1 ? `<div class="thumbs">${imgs.map((u,i)=>`<img src="${u}" class="${i===0?'active':''}" onclick="setMain('${u}',this)"/>`).join("")}</div>`:""}
+    </div>
+    <div class="info">
+      ${p.category?`<span class="cat">${p.category}</span>`:""}
+      <h1>${p.name}</h1>
+      <div class="price-row">
+        <span class="price">${fmt(p.price)}</span>
+        ${off>0?`<span class="old">${fmt(p.old)}</span><span class="off">-${off}%</span>`:""}
+      </div>
+      ${stockHtml}
+      <div class="cta">
+        <a class="btn btn-wa" href="https://wa.me/${CONFIG.whatsappNumber}?text=${waMsg}" target="_blank">💬 Pedir por WhatsApp</a>
+        <a class="btn btn-ghost" href="/">← Ver más productos</a>
+      </div>
+      <div class="benefits">
+        <div><span class="i">🚚</span> Envío a todo el país</div>
+        <div><span class="i">💵</span> Pago contra entrega</div>
+        <div><span class="i">🔒</span> Compra segura</div>
+        <div><span class="i">↩️</span> Cambios y devoluciones</div>
+      </div>
+    </div>
+    <div class="desc-box">
+      <h2>Descripción</h2>
+      <div class="content">${p.descHtml || ("<p>"+(p.desc||"Sin descripción.")+"</p>")}</div>
+    </div>
+  `;
+}
+
+function setMain(url, el){
+  document.getElementById("mainImg").src = url;
+  document.querySelectorAll(".thumbs img").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+}
+
+load();
+</script>
+</body>
+</html>

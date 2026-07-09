@@ -473,14 +473,15 @@ function renderProducts(){
     const media = p.image
       ? `<img src="${p.image}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='<div class=&quot;ph&quot;>📦</div>'"/>`
       : `<div class="ph">${p.emoji||'📦'}</div>`;
+    const link = `producto.html?id=${p.id}`;
     return `<article class="card">
-      <div class="thumb">
+      <a class="thumb" href="${link}" style="cursor:pointer">
         ${media}
         ${p.badge?`<span class="badge ${p.badgeType}">${p.badge}</span>`:''}
         ${p.score?`<span class="score">🔥 ${p.score}</span>`:''}
-      </div>
+      </a>
       <div class="card-body">
-        <h3>${p.name}</h3>
+        <h3><a href="${link}" style="text-decoration:none;color:inherit">${p.name}</a></h3>
         <p class="desc">${p.desc}</p>
         <div class="metrics"><span>⭐ Score <b>${p.score}/100</b></span><span>${p.sales}</span></div>
         <div class="price-row">
@@ -488,7 +489,7 @@ function renderProducts(){
           <span class="old">${fmt(p.old)}</span>
           <span class="off">-${off}%</span>
         </div>
-        <button class="add" onclick="addToCart(${p.id})">Agregar al carrito</button>
+        <button class="add" onclick="location.href='${link}'">Ver producto →</button>
       </div>
     </article>`;
   }).join("");
