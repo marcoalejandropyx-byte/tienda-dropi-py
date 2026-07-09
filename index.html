@@ -194,11 +194,35 @@
     .card-body{padding:11px}
     .card .add{padding:10px;font-size:13px}
   }
+
+  /* ====== ANIMACIONES LLAMATIVAS ====== */
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(232,50,45,.5)}50%{box-shadow:0 0 20px 5px rgba(232,50,45,.5)}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+  @keyframes shine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes wob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .trust-strip{overflow:hidden;white-space:nowrap}
+  .trust-strip .run{display:inline-block;animation:marquee 20s linear infinite}
+  .card .off{animation:blink 1.1s ease-in-out infinite;background:var(--brand)!important;color:#fff!important}
+  .card .badge{animation:float 2.4s ease-in-out infinite}
+  .card .add{background:linear-gradient(90deg,#e8322d,#ff7a45,#e8322d)!important;background-size:200% 100%!important;color:#fff!important;
+    animation:shine 3s linear infinite;font-weight:800;letter-spacing:.2px}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(20,24,31,.16);transition:.2s}
+  .card:hover .add{animation:pulse 1.2s ease-in-out infinite, shine 3s linear infinite}
+  .hot-flag{position:absolute;top:8px;left:8px;background:#ffd36b;color:#7a4b00;font-weight:900;font-size:11px;
+    padding:4px 9px;border-radius:999px;z-index:2;animation:wob 1.4s ease-in-out infinite}
+  .hero .btn-primary{animation:pulse 1.6s ease-in-out infinite}
+  .promo-band{background:linear-gradient(90deg,#e8322d,#ff7a45);color:#fff;text-align:center;font-weight:800;
+    font-size:14px;padding:10px 12px;letter-spacing:.3px}
+  .promo-band .b{animation:blink 1s ease-in-out infinite}
 </style>
 </head>
 <body>
 
-<div class="trust-strip">🚚 <b>Envío a todo Paraguay</b> · Pago contra entrega disponible · Atención por WhatsApp 24/7</div>
+<div class="trust-strip"><span class="run">🚚 <b>Envío a todo Paraguay</b> · 💳 Pagá con tarjeta o 💵 contra entrega · 🔒 Compra segura · ⚡ Ofertas por tiempo limitado &nbsp;&nbsp;&nbsp; 🚚 <b>Envío a todo Paraguay</b> · 💳 Pagá con tarjeta o 💵 contra entrega · 🔒 Compra segura · ⚡ Ofertas por tiempo limitado &nbsp;&nbsp;&nbsp;</span></div>
+<div class="promo-band">🔥 <span class="b">HOY</span> · Envío rápido a todo el país + <span class="b">descuentos en todos los productos</span> 🔥</div>
 
 <header class="site">
   <div class="container bar">
@@ -474,8 +498,10 @@ function renderProducts(){
       ? `<img src="${p.image}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='<div class=&quot;ph&quot;>📦</div>'"/>`
       : `<div class="ph">${p.emoji||'📦'}</div>`;
     const link = `producto.html?id=${p.id}`;
+    const saveTxt = (p.old>p.price)?`Ahorrás ${fmt(p.old-p.price)}`:'';
     return `<article class="card">
       <a class="thumb" href="${link}" style="cursor:pointer">
+        ${off>0?`<span class="hot-flag">🔥 -${off}%</span>`:''}
         ${media}
         ${p.badge?`<span class="badge ${p.badgeType}">${p.badge}</span>`:''}
         ${p.score?`<span class="score">🔥 ${p.score}</span>`:''}
@@ -483,13 +509,13 @@ function renderProducts(){
       <div class="card-body">
         <h3><a href="${link}" style="text-decoration:none;color:inherit">${p.name}</a></h3>
         <p class="desc">${p.desc}</p>
-        <div class="metrics"><span>⭐ Score <b>${p.score}/100</b></span><span>${p.sales}</span></div>
+        <div class="metrics"><span>⭐ Score <b>${p.score}/100</b></span><span>${saveTxt}</span></div>
         <div class="price-row">
           <span class="price">${fmt(p.price)}</span>
           <span class="old">${fmt(p.old)}</span>
           <span class="off">-${off}%</span>
         </div>
-        <button class="add" onclick="location.href='${link}'">Ver producto →</button>
+        <button class="add" onclick="location.href='${link}'">🛒 Comprar ahora →</button>
       </div>
     </article>`;
   }).join("");

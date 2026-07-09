@@ -49,7 +49,7 @@ export default {
     if (url.pathname === "/api/products") return handleProducts(env);
     if (url.pathname === "/api/product") return handleProduct(env, url.searchParams.get("id"));
     if (url.pathname === "/api/order" && request.method === "POST") return handleOrder(env, request);
-    if (url.pathname === "/api/dropitest") return dropiTest(env);
+    if (url.pathname === "/api/checkout" && request.method === "POST") return handleCheckout(env, request);
     return env.ASSETS.fetch(request);
   },
 };
@@ -167,30 +167,31 @@ async function handleProduct(env, id) {
   } catch (e) { return json({ ok: false, error: String(e) }); }
 }
 
-/* --------------- DIAGNÓSTICO API DROPI (buscar stock real) --------------- */
-async function dropiTest(env) {
-  const KEY = env.DROPI_KEY;
-  if (!KEY) return json({ error: "No hay DROPI_KEY cargada en Cloudflare" });
-  const candidates = [
-    ["POST", "https://api-v2.dropi.com.py/integrations/products"],
-    ["POST", "https://api-v2.dropi.com.py/products/index"],
-    ["POST", "https://api-v2.dropi.com.py/integration/products"],
-    ["POST", "https://app.dropi.com.py/api/integrations/products"],
-    ["GET", "https://api-v2.dropi.com.py/integrations/products?pageSize=2"],
-  ];
-  const out = [];
-  for (const [m, u] of candidates) {
-    try {
-      const r = await fetch(u, {
-        method: m,
-        headers: { "Content-Type": "application/json", "dropi-integration-key": KEY },
-        body: m === "POST" ? JSON.stringify({ scroll_infinite: true, order_by: "id", order_type: "DESC", pageSize: 2, startData: 0 }) : undefined,
-      });
-      const t = await r.text();
-      out.push({ url: u, method: m, status: r.status, snippet: t.slice(0, 260) });
-    } catch (e) { out.push({ url: u, method: m, error: String(e) }); }
-  }
-  return json({ tries: out });
+/* --------------- CHECKOUT REAL (Storefront cartCreate -> checkoutUrl) --------------- */
+/* Crea un carrito en Shopify y devuelve la URL del checkout oficial (tarjeta,
+   transferencia o contra entrega según los métodos activos en la tienda).
+   No requiere Admin token: funciona con el Storefront token público. */
+async function handleCheckout(env, request) {
+  if (!env.SHOPIFY_STOREFRONT_TOKEN) return json({ ok: false, error: "Falta SHOPIFY_STOREFRONT_TOKEN" });
+  let b;
+  try { b = await request.json(); } catch { return json({ ok: false, error: "JSON inválido" }, 400); }
+  const vid = String(b.variantId || "").replace(/\D/g, "");
+  const qty = Math.max(1, Number(b.qty || 1));
+  if (!vid) return json({ ok: false, error: "Falta la variante del producto" }, 400);
+  const gid = `gid://shopify/ProductVariant/${vid}`;
+  const q = `mutation($lines:[CartLineInput!]!){
+    cartCreate(input:{ lines:$lines }){
+      cart { checkoutUrl }
+      userErrors { field message }
+    }
+  }`;
+  try {
+    const data = await storefront(env, q, { lines: [{ merchandiseId: gid, quantity: qty }] });
+    const cc = data.data && data.data.cartCreate;
+    const link = cc && cc.cart && cc.cart.checkoutUrl;
+    if (!link) return json({ ok: false, error: (cc && cc.userErrors) || data.errors || "sin checkoutUrl" });
+    return json({ ok: true, checkoutUrl: link });
+  } catch (e) { return json({ ok: false, error: String(e) }); }
 }
 
 /* --------------- CREAR PEDIDO CONTRA ENTREGA (Admin API) --------------- */
