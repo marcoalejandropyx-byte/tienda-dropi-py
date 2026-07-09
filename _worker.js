@@ -1,20 +1,18 @@
 /**
  * Cloudflare Pages — Advanced mode ( _worker.js en la raíz )
  * ------------------------------------------------------------------
- * Un solo archivo que hace de backend seguro entre tu tienda y la API
- * de Dropi. Rutas:
- *   GET  /api/products   -> lista productos de Dropi (por categoría)
- *   POST /api/order      -> crea un pedido en Dropi
- *   (cualquier otra ruta) -> sirve los archivos estáticos (index.html)
+ * La landing tienda-dropi.pages.dev muestra los productos que tenés
+ * en tu tienda SHOPIFY (que a su vez se sincroniza con Dropi vía la
+ * app Dropify). Así la landing y tu tienda muestran el mismo catálogo.
  *
- * La clave de Dropi NUNCA se expone al navegador: vive como variable
- * de entorno cifrada en Cloudflare (DROPI_KEY).
+ * Rutas:
+ *   GET  /api/products  -> lista productos desde Shopify (Storefront API)
+ *   (otras)             -> sirve los archivos estáticos (index.html)
  *
  * Variables de entorno (Cloudflare -> Settings -> Variables and Secrets):
- *   DROPI_KEY            (SECRET) tu clave de integración de Dropi
- *   DROPI_API_BASE       (texto)  ej: https://api.dropi.com.py/api
- *   DROPI_PRODUCTS_PATH  (texto, opcional) def: /integrations/products
- *   DROPI_ORDER_PATH     (texto, opcional) def: /integrations/orders
+ *   SHOPIFY_DOMAIN            (texto)   ej: 00kv0v-ck.myshopify.com
+ *   SHOPIFY_STOREFRONT_TOKEN  (SECRET)  token de la Storefront API
+ *   SHOPIFY_API_VERSION       (texto, opcional) def: 2024-10
  * ------------------------------------------------------------------
  */
 
@@ -34,119 +32,81 @@ function json(data, status = 200, extra = {}) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-
     if (request.method === "OPTIONS" && url.pathname.startsWith("/api/")) {
       return new Response(null, { status: 204, headers: CORS });
     }
-    if (url.pathname === "/api/products") return handleProducts(request, env, url);
-    if (url.pathname === "/api/order")    return handleOrder(request, env);
-
-    // Resto: archivos estáticos (index.html, imágenes, etc.)
+    if (url.pathname === "/api/products") return handleProducts(env);
     return env.ASSETS.fetch(request);
   },
 };
 
-/* ----------------------------- PRODUCTOS ----------------------------- */
-async function handleProducts(request, env, url) {
-  const KEY  = env.DROPI_KEY;
-  const BASE = (env.DROPI_API_BASE || "").replace(/\/$/, "");
-  const PATH = env.DROPI_PRODUCTS_PATH || "/integrations/products";
+async function handleProducts(env) {
+  const DOMAIN = env.SHOPIFY_DOMAIN;
+  const TOKEN = env.SHOPIFY_STOREFRONT_TOKEN;
+  const VERSION = env.SHOPIFY_API_VERSION || "2024-10";
 
-  if (!KEY || !BASE) {
-    return json({ ok: false, configured: false, reason: "Faltan DROPI_KEY o DROPI_API_BASE", products: [] });
+  if (!DOMAIN || !TOKEN) {
+    return json({ ok: false, configured: false, reason: "Faltan SHOPIFY_DOMAIN o SHOPIFY_STOREFRONT_TOKEN", products: [] });
   }
 
-  const category = url.searchParams.get("category");
-  const keywords = url.searchParams.get("keywords");
-  const page = Number(url.searchParams.get("page") || "1");
-
-  const payload = {
-    scroll_infinite: true,
-    order_by: "created_at",
-    order_type: "DESC",
-    pageSize: 50,
-    startData: (page - 1) * 50,
-  };
-  if (keywords) payload.keywords = keywords;
-  if (category) payload.category = [Number(category)];
+  const query = `{
+    products(first: 50, sortKey: CREATED_AT, reverse: true) {
+      edges { node {
+        id
+        title
+        description
+        productType
+        featuredImage { url }
+        variants(first: 1) { edges { node {
+          price { amount currencyCode }
+          compareAtPrice { amount }
+          availableForSale
+          quantityAvailable
+        } } }
+      } }
+    }
+  }`;
 
   try {
-    const resp = await fetch(`${BASE}${PATH}`, {
+    const resp = await fetch(`https://${DOMAIN}/api/${VERSION}/graphql.json`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "dropi-integration-key": KEY },
-      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": TOKEN,
+      },
+      body: JSON.stringify({ query }),
     });
+
     if (!resp.ok) {
       return json({ ok: false, configured: true, status: resp.status, error: await resp.text(), products: [] });
     }
-    const raw = await resp.json();
-    const list = raw.objects || raw.data || raw.products || raw.result || [];
-    const products = list.map(normalizeProduct).filter((p) => p && p.id);
+
+    const data = await resp.json();
+    if (data.errors) {
+      return json({ ok: false, configured: true, error: data.errors, products: [] });
+    }
+
+    const edges = (data.data && data.data.products && data.data.products.edges) || [];
+    const products = edges.map(({ node }, i) => {
+      const v = (node.variants.edges[0] && node.variants.edges[0].node) || {};
+      const price = Math.round(Number((v.price && v.price.amount) || 0));
+      const compare = Math.round(Number((v.compareAtPrice && v.compareAtPrice.amount) || 0));
+      return {
+        id: node.id.split("/").pop(),
+        name: node.title,
+        price,
+        old: compare > price ? compare : Math.round(price * 1.3),
+        image: node.featuredImage ? node.featuredImage.url : "",
+        stock: v.availableForSale ? (v.quantityAvailable || 99) : 0,
+        category: node.productType || "General",
+        desc: (node.description || "").replace(/<[^>]*>/g, "").slice(0, 120),
+        sales: "",
+      };
+    });
+
     return json({ ok: true, configured: true, count: products.length, products },
       200, { "Cache-Control": "public, max-age=300" });
   } catch (err) {
     return json({ ok: false, configured: true, error: String(err), products: [] });
-  }
-}
-
-function normalizeProduct(p = {}) {
-  const price = Number(p.sale_price ?? p.price ?? p.suggested_price ?? 0);
-  const cost = Number(p.price ?? p.cost ?? 0);
-  const gallery = p.gallery || p.images || [];
-  const image =
-    p.main_image || p.image ||
-    (Array.isArray(gallery) && gallery.length ? (gallery[0].url || gallery[0]) : "") || "";
-  return {
-    id: p.id ?? p.product_id,
-    name: p.name || p.title || "Producto",
-    price,
-    old: cost && cost > price ? cost : Math.round(price * 1.4),
-    image,
-    stock: Number(p.stock ?? p.available ?? 0),
-    category: (p.categories && p.categories[0] && (p.categories[0].name || p.categories[0])) || p.category || "General",
-    desc: (p.description || "").replace(/<[^>]*>/g, "").slice(0, 120),
-    sales: p.sold ? `${p.sold} vendidos` : "",
-  };
-}
-
-/* ------------------------------- ORDEN ------------------------------- */
-async function handleOrder(request, env) {
-  const KEY  = env.DROPI_KEY;
-  const BASE = (env.DROPI_API_BASE || "").replace(/\/$/, "");
-  const PATH = env.DROPI_ORDER_PATH || "/integrations/orders";
-
-  if (!KEY || !BASE) return json({ ok: false, configured: false, reason: "Faltan DROPI_KEY o DROPI_API_BASE" });
-
-  let body;
-  try { body = await request.json(); } catch { return json({ ok: false, error: "JSON inválido" }, 400); }
-
-  const c = body.customer || {};
-  const items = Array.isArray(body.items) ? body.items : [];
-  if (!c.name || !c.phone || !c.address || items.length === 0) {
-    return json({ ok: false, error: "Faltan datos del cliente o productos" }, 400);
-  }
-
-  const payload = {
-    name: c.name,
-    phone: c.phone,
-    direction: c.address,
-    city: c.city,
-    department: c.dept,
-    notes: `Pedido web (${body.payment === "cod" ? "contra entrega" : "pago online"})`,
-    collection: body.payment === "cod" ? items.reduce((s, it) => s + Number(it.price) * Number(it.qty), 0) : 0,
-    products: items.map((it) => ({ id: Number(it.id), price: Number(it.price), quantity: Number(it.qty) })),
-  };
-
-  try {
-    const resp = await fetch(`${BASE}${PATH}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "dropi-integration-key": KEY },
-      body: JSON.stringify(payload),
-    });
-    const raw = await resp.json().catch(() => ({}));
-    if (!resp.ok) return json({ ok: false, status: resp.status, error: raw });
-    return json({ ok: true, dropiOrderId: raw.id || raw.order_id || raw.guide || null, raw });
-  } catch (err) {
-    return json({ ok: false, error: String(err) });
   }
 }
