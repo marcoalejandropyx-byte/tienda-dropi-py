@@ -56,9 +56,19 @@
   .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
   .hero-badges{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
   .hero-badges div{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px;font-weight:600}
-  .hero-art{background:linear-gradient(135deg,var(--brand),#ff7a45);border-radius:24px;aspect-ratio:4/3;position:relative;overflow:hidden;box-shadow:var(--shadow);display:grid;place-items:center;color:#fff;text-align:center;padding:24px}
-  .hero-art .big{font-size:64px;font-weight:900;line-height:1}
-  .hero-art .sub{font-weight:700;opacity:.95;margin-top:8px}
+  .hero-art{position:relative;aspect-ratio:4/3;border-radius:24px;padding:14px;
+    background:linear-gradient(135deg,var(--brand),#ff7a45);box-shadow:var(--shadow);overflow:hidden}
+  .ha-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;height:100%}
+  .ha-grid .cell{background:#fff;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+  .ha-grid .cell img{width:100%;height:100%;object-fit:cover;display:block;transition:.35s transform}
+  .ha-grid .cell:hover img{transform:scale(1.06)}
+  .ha-grid .cell .tag{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
+  .ha-grid .cell.big-cell{grid-row:1/3}
+  .ha-badge{position:absolute;right:16px;bottom:16px;background:#fff;border-radius:16px;padding:10px 16px;
+    box-shadow:0 10px 26px rgba(0,0,0,.22);text-align:center;line-height:1.05;animation:float 2.6s ease-in-out infinite}
+  .ha-badge b{display:block;font-size:26px;font-weight:900;color:var(--brand)}
+  .ha-badge span{font-size:11px;font-weight:700;color:#374151}
+  .ha-skeleton{background:linear-gradient(90deg,#fff2,#fff5,#fff2);background-size:200% 100%;animation:shine 1.4s linear infinite}
 
   /* Section */
   .section{padding:44px 0}
@@ -257,11 +267,9 @@
         <div>↩️ Cambios y devoluciones</div>
       </div>
     </div>
-    <div class="hero-art">
-      <div>
-        <div class="big">+120</div>
-        <div class="sub">productos ganadores<br/>probados en pauta</div>
-      </div>
+    <div class="hero-art" id="heroArt">
+      <div class="ha-grid" id="haGrid"></div>
+      <div class="ha-badge"><b id="haCount">+120</b><span>productos ganadores</span></div>
     </div>
   </div>
 </section>
@@ -469,9 +477,28 @@ async function loadProducts(){
         badgeType:(p.stock>0?"":"new"), sales:p.sales||"", desc:p.desc||"", stock:p.stock
       }));
       liveMode = true;
-      renderFilters(); renderProducts();
+      renderFilters(); renderProducts(); renderHero();
     }
   }catch(e){ /* si falla, se queda el catálogo demo */ }
+}
+
+/* ---------- Showcase de productos destacados (hero) ---------- */
+function renderHero(){
+  const grid = document.getElementById("haGrid");
+  const countEl = document.getElementById("haCount");
+  if(!grid) return;
+  const withImg = PRODUCTS.filter(p=>p.image);
+  if(countEl) countEl.textContent = "+" + PRODUCTS.length;
+  if(!withImg.length){ return; }
+  const pick = withImg.slice(0,3);
+  grid.innerHTML = pick.map((p,i)=>{
+    const off = p.old>p.price ? Math.round((1-p.price/p.old)*100) : 0;
+    const cls = i===0 ? "cell big-cell" : "cell";
+    return `<a class="${cls}" href="producto.html?id=${p.id}" title="${p.name}">
+      <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+      ${off>0?`<span class="tag">🔥 -${off}%</span>`:``}
+    </a>`;
+  }).join("");
 }
 
 /* ---------- Render categorías ---------- */
