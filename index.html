@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es-PY">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tienda Dropi Paraguay — Productos Ganadores</title>
+<meta name="description" content="Tienda de productos ganadores con entrega en todo Paraguay. Compra por WhatsApp, contra entrega o pago online seguro." />
+<style>
+  :root{
+    --brand:#e8322d;
+    --brand-dark:#b81e1a;
+    --wa:#25d366;
+    --wa-dark:#128c7e;
+    --ink:#16181d;
+    --muted:#6b7280;
+    --line:#e6e8ec;
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --ok:#1f9d55;
+    --shadow:0 6px 24px rgba(20,24,31,.08);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none}
+  .container{max-width:1140px;margin:0 auto;padding:0 18px}
+
+  /* Header */
+  header.site{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;gap:16px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+  .logo .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand),#ff7a45);display:grid;place-items:center;color:#fff;font-weight:900}
+  .logo small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px}
+  .search{flex:1;max-width:420px;position:relative}
+  .search input{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:999px;font-size:14px;background:var(--bg)}
+  .search input:focus{outline:2px solid var(--brand);background:#fff}
+  .cart-btn{margin-left:auto;position:relative;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px}
+  .cart-btn .count{position:absolute;top:-6px;right:-6px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:999px;display:grid;place-items:center;padding:0 5px}
+  .trust-strip{background:var(--ink);color:#fff;font-size:12.5px;text-align:center;padding:7px 12px}
+  .trust-strip b{color:#ffd36b}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#fff 0%,#fff 55%,#fff5f3 100%);border-bottom:1px solid var(--line)}
+  .hero-in{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:44px 0}
+  .hero h1{font-size:40px;line-height:1.08;margin:0 0 14px;letter-spacing:-1px}
+  .hero h1 span{color:var(--brand)}
+  .hero p{font-size:17px;color:#374151;margin:0 0 22px;max-width:520px}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:800;font-size:15px;text-decoration:none;transition:.15s transform}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .hero-badges{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+  .hero-badges div{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px;font-weight:600}
+  .hero-art{background:linear-gradient(135deg,var(--brand),#ff7a45);border-radius:24px;aspect-ratio:4/3;position:relative;overflow:hidden;box-shadow:var(--shadow);display:grid;place-items:center;color:#fff;text-align:center;padding:24px}
+  .hero-art .big{font-size:64px;font-weight:900;line-height:1}
+  .hero-art .sub{font-weight:700;opacity:.95;margin-top:8px}
+
+  /* Section */
+  .section{padding:44px 0}
+  .section h2{font-size:26px;margin:0 0 4px;letter-spacing:-.5px}
+  .section .sub{color:var(--muted);margin:0 0 22px;font-size:15px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13.5px;font-weight:600;color:#374151}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* Grid */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:.18s box-shadow,.18s transform}
+  .card:hover{box-shadow:var(--shadow);transform:translateY(-3px)}
+  .thumb{aspect-ratio:1/1;position:relative;overflow:hidden;background:#f0f1f4}
+  .thumb .ph{width:100%;height:100%;display:grid;place-items:center;font-size:56px}
+  .badge{position:absolute;top:10px;left:10px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+  .badge.hot{background:#ff7a45}
+  .badge.new{background:var(--ok)}
+  .score{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;font-weight:800;padding:5px 9px;border-radius:999px;display:flex;align-items:center;gap:4px}
+  .card-body{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .card-body h3{font-size:15px;margin:0;line-height:1.3}
+  .card-body .desc{font-size:12.5px;color:var(--muted);margin:0}
+  .price-row{display:flex;align-items:baseline;gap:8px;margin-top:auto}
+  .price{font-size:19px;font-weight:900}
+  .old{font-size:13px;color:var(--muted);text-decoration:line-through}
+  .off{font-size:11px;font-weight:800;color:var(--ok);background:#e7f6ec;padding:2px 7px;border-radius:6px}
+  .card .add{margin-top:6px;width:100%;background:var(--brand);color:#fff;padding:11px;border-radius:10px;font-weight:800;font-size:14px}
+  .card .add:hover{background:var(--brand-dark)}
+  .metrics{display:flex;gap:10px;font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+  .metrics b{color:var(--ink)}
+
+  /* Why / trust */
+  .why{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .why .item{padding:6px}
+  .why .ico{width:44px;height:44px;border-radius:12px;background:#fff5f3;color:var(--brand);display:grid;place-items:center;font-size:22px;margin-bottom:10px}
+  .why h4{margin:0 0 4px;font-size:15px}
+  .why p{margin:0;font-size:13px;color:var(--muted)}
+
+  /* Cart drawer */
+  .overlay{position:fixed;inset:0;background:rgba(10,12,16,.5);opacity:0;pointer-events:none;transition:.2s;z-index:50}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;background:#fff;z-index:60;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.18)}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .drawer-head h3{margin:0;font-size:18px}
+  .x{background:var(--bg);width:34px;height:34px;border-radius:10px;font-size:18px;font-weight:700;color:#374151}
+  .drawer-body{flex:1;overflow:auto;padding:14px 18px}
+  .empty{text-align:center;color:var(--muted);padding:50px 10px;font-size:14px}
+  .line-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .line-item .li-thumb{width:58px;height:58px;border-radius:10px;background:#f0f1f4;display:grid;place-items:center;font-size:26px;flex-shrink:0}
+  .li-info{flex:1;min-width:0}
+  .li-info h4{margin:0 0 2px;font-size:13.5px;line-height:1.25}
+  .li-info .li-price{font-size:13px;color:var(--muted)}
+  .qty{display:inline-flex;align-items:center;gap:0;margin-top:6px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .qty button{width:28px;height:28px;background:var(--bg);font-weight:800;font-size:15px;color:#374151}
+  .qty span{min-width:34px;text-align:center;font-size:13px;font-weight:700}
+  .li-remove{background:none;color:var(--brand);font-size:12px;font-weight:700;margin-top:6px;padding:0}
+  .li-sub{font-weight:800;font-size:14px;white-space:nowrap}
+  .drawer-foot{border-top:1px solid var(--line);padding:16px 18px;background:#fff}
+  .tot-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;color:#374151}
+  .tot-row.grand{font-size:19px;font-weight:900;color:var(--ink);margin:8px 0 14px}
+  .checkout-btn{width:100%;background:var(--ink);color:#fff;padding:15px;border-radius:12px;font-weight:800;font-size:15px}
+  .secure-note{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11.5px;color:var(--muted);margin-top:10px}
+
+  /* Modal checkout */
+  .modal{position:fixed;inset:0;z-index:70;display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto}
+  .modal.open{display:flex}
+  .modal-card{background:#fff;border-radius:18px;width:100%;max-width:560px;box-shadow:0 30px 80px rgba(0,0,0,.3);margin:auto}
+  .modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .modal-head h3{margin:0;font-size:18px}
+  .modal-body{padding:22px}
+  .pay-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+  .pay-tab{border:2px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;font-size:12.5px;font-weight:700;color:#374151;background:#fff;transition:.15s}
+  .pay-tab .pico{font-size:22px;display:block;margin-bottom:5px}
+  .pay-tab.active{border-color:var(--brand);background:#fff5f3;color:var(--brand)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+  .field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--brand);border-color:transparent}
+  .field .err{color:var(--brand);font-size:12px;margin-top:4px;display:none}
+  .field.invalid input,.field.invalid select{border-color:var(--brand);background:#fff5f3}
+  .field.invalid .err{display:block}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pay-info{background:var(--bg);border-radius:12px;padding:14px;font-size:13px;color:#374151;margin-bottom:16px;line-height:1.5}
+  .pay-info b{color:var(--ink)}
+  .order-sum{background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px}
+  .order-sum .l{display:flex;justify-content:space-between;font-size:13.5px;padding:3px 0}
+  .order-sum .l.big{font-weight:900;font-size:16px;border-top:1px solid var(--line);margin-top:6px;padding-top:8px}
+  .submit{width:100%;padding:15px;border-radius:12px;font-weight:800;font-size:15.5px;color:#fff;background:var(--wa);display:flex;align-items:center;justify-content:center;gap:8px}
+  .submit.pay{background:var(--brand)}
+  .submit.cod{background:var(--ink)}
+  .lock-line{display:flex;align-items:center;gap:7px;justify-content:center;font-size:12px;color:var(--muted);margin-top:12px}
+
+  /* Success */
+  .success{text-align:center;padding:20px 6px}
+  .success .circle{width:74px;height:74px;border-radius:50%;background:#e7f6ec;color:var(--ok);display:grid;place-items:center;font-size:38px;margin:0 auto 16px}
+  .success h3{margin:0 0 8px;font-size:22px}
+  .success p{color:var(--muted);font-size:14px;margin:0 auto 18px;max-width:400px}
+
+  /* Footer */
+  footer.site{background:var(--ink);color:#c7ccd6;margin-top:20px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:24px;padding:44px 0 28px}
+  footer h5{color:#fff;font-size:14px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.5px}
+  footer a{display:block;color:#c7ccd6;text-decoration:none;font-size:13.5px;padding:4px 0}
+  footer a:hover{color:#fff}
+  footer .brandline{font-size:13.5px;line-height:1.6;max-width:280px}
+  .pay-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pay-badges span{background:rgba(255,255,255,.1);padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700}
+  .copyright{border-top:1px solid rgba(255,255,255,.12);padding:16px 0;font-size:12.5px;text-align:center}
+
+  /* Floating WA */
+  .wa-float{position:fixed;bottom:20px;left:20px;z-index:45;background:var(--wa);color:#fff;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 24px rgba(37,211,102,.5);text-decoration:none}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;z-index:80;transition:.3s;box-shadow:var(--shadow)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){
+    .hero-in{grid-template-columns:1fr}
+    .hero-art{order:-1}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .why-grid{grid-template-columns:repeat(2,1fr)}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .hero h1{font-size:32px}
+    .search{display:none}
+  }
+  @media(max-width:520px){
+    .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+    .pay-tabs{grid-template-columns:1fr}
+    .two{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr}
+    .card-body{padding:11px}
+    .card .add{padding:10px;font-size:13px}
+  }
+</style>
+</head>
+<body>
+
+<div class="trust-strip">🚚 <b>Envío a todo Paraguay</b> · Pago contra entrega disponible · Atención por WhatsApp 24/7</div>
+
+<header class="site">
+  <div class="container bar">
+    <div class="logo">
+      <span class="dot">D</span>
+      <span>DropiStore PY<small>Productos que se venden solos</small></span>
+    </div>
+    <div class="search">
+      <input id="searchInput" type="search" placeholder="Buscar producto…" oninput="renderProducts()" />
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Carrito
+      <span class="count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-in">
+    <div>
+      <h1>Los productos <span>ganadores</span> de Dropi, listos para vender en Paraguay</h1>
+      <p>Catálogo curado con los artículos de mayor demanda y mejor margen. Comprá en segundos: por WhatsApp, contra entrega o pago online seguro.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#catalogo">Ver productos 🔥</a>
+        <a class="btn btn-wa" id="heroWa" href="#">Consultar por WhatsApp</a>
+      </div>
+      <div class="hero-badges">
+        <div>✅ Contra entrega</div>
+        <div>🔒 Pago 100% seguro</div>
+        <div>⭐ Productos verificados</div>
+        <div>↩️ Cambios y devoluciones</div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div>
+        <div class="big">+120</div>
+        <div class="sub">productos ganadores<br/>probados en pauta</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOGO -->
+<section class="section" id="catalogo">
+  <div class="container">
+    <h2>Productos ganadores</h2>
+    <p class="sub">Cada producto muestra su “Score” de demanda para que identifiques rápido cuál conviene pautar.</p>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why">
+  <div class="container section">
+    <div class="why-grid">
+      <div class="item"><div class="ico">🔒</div><h4>Pago seguro</h4><p>Procesamos pagos con pasarela cifrada. Nunca almacenamos los datos de tu tarjeta.</p></div>
+      <div class="item"><div class="ico">🚚</div><h4>Contra entrega</h4><p>Pagás cuando recibís el producto en tu casa. Cobertura en todo el país.</p></div>
+      <div class="item"><div class="ico">💬</div><h4>Cierre por WhatsApp</h4><p>Confirmás tu pedido con un asesor real. Ideal para pauta en Meta e Instagram.</p></div>
+      <div class="item"><div class="ico">📈</div><h4>Productos validados</h4><p>Score de demanda basado en ventas y rendimiento en publicidad.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer" aria-label="Carrito de compras">
+  <div class="drawer-head">
+    <h3>Tu carrito</h3>
+    <button class="x" onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot" style="display:none">
+    <div class="tot-row"><span>Subtotal</span><span id="subtotal">Gs 0</span></div>
+    <div class="tot-row"><span>Envío</span><span id="shipping">A coordinar</span></div>
+    <div class="tot-row grand"><span>Total</span><span id="grandTotal">Gs 0</span></div>
+    <button class="checkout-btn" onclick="openCheckout()">Finalizar compra →</button>
+    <div class="secure-note">🔒 Compra protegida · Datos cifrados</div>
+  </div>
+</aside>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="checkoutTitle">Finalizar compra</h3>
+      <button class="x" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="modal-body" id="checkoutContent">
+      <!-- payment method tabs -->
+      <div class="pay-tabs">
+        <button class="pay-tab active" data-method="whatsapp" onclick="selectMethod('whatsapp')"><span class="pico">💬</span>WhatsApp</button>
+        <button class="pay-tab" data-method="cod" onclick="selectMethod('cod')"><span class="pico">📦</span>Contra entrega</button>
+        <button class="pay-tab" data-method="online" onclick="selectMethod('online')"><span class="pico">💳</span>Pago online</button>
+      </div>
+
+      <form id="orderForm" novalidate>
+        <div class="two">
+          <div class="field" id="f-name">
+            <label>Nombre y apellido *</label>
+            <input name="name" type="text" placeholder="Ej: Juan Pérez" />
+            <div class="err">Ingresá tu nombre completo.</div>
+          </div>
+          <div class="field" id="f-phone">
+            <label>WhatsApp / Teléfono *</label>
+            <input name="phone" type="tel" inputmode="numeric" placeholder="Ej: 0981 123 456" />
+            <div class="err">Ingresá un número válido (min. 7 dígitos).</div>
+          </div>
+        </div>
+        <div class="two">
+          <div class="field" id="f-city">
+            <label>Ciudad *</label>
+            <input name="city" type="text" placeholder="Ej: Asunción" />
+            <div class="err">Ingresá tu ciudad.</div>
+          </div>
+          <div class="field" id="f-dept">
+            <label>Departamento *</label>
+            <select name="dept">
+              <option value="">Seleccionar…</option>
+              <option>Central</option><option>Asunción</option><option>Alto Paraná</option>
+              <option>Itapúa</option><option>Caaguazú</option><option>San Pedro</option>
+              <option>Cordillera</option><option>Guairá</option><option>Paraguarí</option>
+              <option>Concepción</option><option>Misiones</option><option>Ñeembucú</option>
+              <option>Amambay</option><option>Canindeyú</option><option>Presidente Hayes</option>
+              <option>Caazapá</option><option>Boquerón</option><option>Alto Paraguay</option>
+            </select>
+            <div class="err">Seleccioná el departamento.</div>
+          </div>
+        </div>
+        <div class="field" id="f-address">
+          <label>Dirección de entrega *</label>
+          <input name="address" type="text" placeholder="Calle, número, barrio, referencia" />
+          <div class="err">Ingresá tu dirección.</div>
+        </div>
+
+        <!-- Online-only card fields -->
+        <div id="cardFields" style="display:none">
+          <div class="pay-info">🔒 <b>Pago seguro.</b> Serás redirigido a la pasarela de pago cifrada (SSL) para completar la transacción. <b>No guardamos los datos de tu tarjeta.</b></div>
+        </div>
+        <div id="paymethodInfo" class="pay-info" style="display:none"></div>
+
+        <!-- Order summary -->
+        <div class="order-sum" id="checkoutSummary"></div>
+
+        <button type="submit" class="submit" id="submitBtn">Enviar pedido</button>
+        <div class="lock-line">🔒 Tus datos están protegidos y no se comparten con terceros.</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING WA -->
+<a class="wa-float" id="waFloat" href="#" title="Chatear por WhatsApp">💬</a>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer class="site">
+  <div class="container foot-grid">
+    <div>
+      <div class="logo" style="color:#fff">
+        <span class="dot">D</span>
+        <span style="color:#fff">DropiStore PY</span>
+      </div>
+      <p class="brandline">Tienda de productos ganadores con entrega en todo Paraguay. Comprá con confianza: pago contra entrega o pago online seguro.</p>
+      <div class="pay-badges">
+        <span>VISA</span><span>Mastercard</span><span>Bancard</span><span>Contra entrega</span>
+      </div>
+    </div>
+    <div>
+      <h5>Tienda</h5>
+      <a href="#catalogo">Productos</a>
+      <a href="#catalogo">Más vendidos</a>
+      <a href="#catalogo">Novedades</a>
+    </div>
+    <div>
+      <h5>Ayuda</h5>
+      <a href="#" id="footWa">WhatsApp</a>
+      <a href="#">Seguimiento de pedido</a>
+      <a href="#">Cambios y devoluciones</a>
+    </div>
+    <div>
+      <h5>Legal</h5>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Pago seguro</a>
+    </div>
+  </div>
+  <div class="copyright container">© <span id="year"></span> DropiStore PY · Todos los precios en Guaraníes (Gs) · Sitio de demostración</div>
+</footer>
+
+<script>
+/* ================== CONFIGURACIÓN ==================
+   👉 Cambiá estos valores por los tuyos:
+*/
+const CONFIG = {
+  whatsappNumber: "595981123456",     // tu número con código de país, sin + ni espacios
+  storeName: "DropiStore PY",
+  currency: "Gs",
+  // Cuando tengas pasarela de pago real (Bancard/Pagopar/dLocal), pega la URL base aquí:
+  paymentGatewayUrl: ""               // ej: "https://checkout.pagopar.com/pagar"
+};
+/* =================================================== */
+
+/* ---------- Catálogo ----------
+   Los productos se traen EN VIVO desde /api/products (backend seguro que
+   consulta la API de Dropi con tu clave secreta). Si el backend todavía
+   no está configurado, se usa este catálogo demo como respaldo. */
+const DEMO_PRODUCTS = [
+  {id:1, name:"Mini Aspiradora Portátil Recargable", cat:"Hogar", emoji:"🧹", price:145000, old:210000, score:96, badge:"TOP VENTAS", badgeType:"hot", sales:"1.2k vendidos", desc:"Inalámbrica, potente para auto y hogar."},
+  {id:2, name:"Reloj Inteligente Smartwatch Pro", cat:"Tecnología", emoji:"⌚", price:189000, old:299000, score:94, badge:"GANADOR", badgeType:"", sales:"980 vendidos", desc:"Presión, oxígeno, llamadas y notificaciones."},
+  {id:3, name:"Lámpara Proyector Galaxia LED", cat:"Hogar", emoji:"🌌", price:129000, old:185000, score:91, badge:"VIRAL", badgeType:"hot", sales:"2.1k vendidos", desc:"Proyecta estrellas y nebulosa. Control remoto."},
+  {id:4, name:"Auriculares Bluetooth TWS Pro", cat:"Tecnología", emoji:"🎧", price:99000, old:159000, score:93, badge:"GANADOR", badgeType:"", sales:"1.5k vendidos", desc:"Cancelación de ruido, estuche de carga."},
+  {id:5, name:"Organizador de Maquillaje Giratorio", cat:"Belleza", emoji:"💄", price:85000, old:120000, score:88, badge:"", badgeType:"", sales:"640 vendidos", desc:"360° con espejo. Ordena todo tu tocador."},
+  {id:6, name:"Masajeador Cervical Eléctrico", cat:"Salud", emoji:"💆", price:135000, old:199000, score:90, badge:"GANADOR", badgeType:"", sales:"870 vendidos", desc:"Alivia tensión de cuello y hombros."},
+  {id:7, name:"Botella Térmica Inteligente 500ml", cat:"Hogar", emoji:"🍶", price:75000, old:110000, score:85, badge:"NUEVO", badgeType:"new", sales:"320 vendidos", desc:"Muestra temperatura. Mantiene frío/calor 12h."},
+  {id:8, name:"Cámara de Seguridad WiFi 360°", cat:"Tecnología", emoji:"📹", price:169000, old:249000, score:92, badge:"TOP VENTAS", badgeType:"hot", sales:"1.1k vendidos", desc:"Visión nocturna, app en el celular."},
+  {id:9, name:"Set Bandas de Resistencia Fitness", cat:"Salud", emoji:"🏋️", price:69000, old:99000, score:83, badge:"", badgeType:"", sales:"450 vendidos", desc:"5 niveles. Entrená en casa."},
+  {id:10, name:"Rizador de Cabello Automático", cat:"Belleza", emoji:"💇", price:159000, old:239000, score:89, badge:"VIRAL", badgeType:"hot", sales:"760 vendidos", desc:"Rizos perfectos sin esfuerzo."},
+  {id:11, name:"Purificador de Aire para Auto", cat:"Tecnología", emoji:"🌬️", price:89000, old:130000, score:81, badge:"NUEVO", badgeType:"new", sales:"210 vendidos", desc:"Elimina olores y bacterias."},
+  {id:12, name:"Kit Herramientas 46 Piezas", cat:"Hogar", emoji:"🧰", price:119000, old:175000, score:86, badge:"", badgeType:"", sales:"530 vendidos", desc:"Todo para reparaciones del hogar."}
+];
+
+let PRODUCTS = DEMO_PRODUCTS.slice();   // se reemplaza al cargar desde Dropi
+let cart = {}; // {id: qty}
+let activeCat = "Todos";
+let currentMethod = "whatsapp";
+let liveMode = false;                   // true cuando los datos vienen de Dropi
+
+const fmt = n => CONFIG.currency + " " + n.toLocaleString("es-PY");
+
+/* ---------- Carga de productos desde el backend (Dropi) ---------- */
+async function loadProducts(){
+  try{
+    const r = await fetch("/api/products");
+    const j = await r.json();
+    if(j && j.ok && j.configured && Array.isArray(j.products) && j.products.length){
+      PRODUCTS = j.products.map(p=>({
+        id:p.id, name:p.name, cat:p.category||"General",
+        emoji:"\ud83d\udce6", image:p.image||"", price:p.price, old:p.old||Math.round(p.price*1.4),
+        score:Math.min(99, 80+(p.id%20)), badge:(p.stock>0?"":"AGOTADO"),
+        badgeType:(p.stock>0?"":"new"), sales:p.sales||"", desc:p.desc||"", stock:p.stock
+      }));
+      liveMode = true;
+      renderFilters(); renderProducts();
+    }
+  }catch(e){ /* si falla, se queda el catálogo demo */ }
+}
+
+/* ---------- Render categorías ---------- */
+function renderFilters(){
+  const cats = ["Todos", ...new Set(PRODUCTS.map(p=>p.cat))];
+  document.getElementById("filters").innerHTML = cats.map(c=>
+    `<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join("");
+}
+function setCat(c){ activeCat=c; renderFilters(); renderProducts(); }
+
+/* ---------- Render productos ---------- */
+function renderProducts(){
+  const q = (document.getElementById("searchInput").value||"").toLowerCase();
+  const list = PRODUCTS.filter(p=>
+    (activeCat==="Todos"||p.cat===activeCat) &&
+    (p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q))
+  );
+  const grid = document.getElementById("grid");
+  if(!list.length){ grid.innerHTML = `<p style="grid-column:1/-1;color:var(--muted)">No se encontraron productos.</p>`; return; }
+  grid.innerHTML = list.map(p=>{
+    const off = Math.round((1 - p.price/p.old)*100);
+    const media = p.image
+      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='<div class=&quot;ph&quot;>📦</div>'"/>`
+      : `<div class="ph">${p.emoji||'📦'}</div>`;
+    return `<article class="card">
+      <div class="thumb">
+        ${media}
+        ${p.badge?`<span class="badge ${p.badgeType}">${p.badge}</span>`:''}
+        ${p.score?`<span class="score">🔥 ${p.score}</span>`:''}
+      </div>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <p class="desc">${p.desc}</p>
+        <div class="metrics"><span>⭐ Score <b>${p.score}/100</b></span><span>${p.sales}</span></div>
+        <div class="price-row">
+          <span class="price">${fmt(p.price)}</span>
+          <span class="old">${fmt(p.old)}</span>
+          <span class="off">-${off}%</span>
+        </div>
+        <button class="add" onclick="addToCart(${p.id})">Agregar al carrito</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+/* ---------- Carrito ---------- */
+function addToCart(id){
+  cart[id] = (cart[id]||0)+1;
+  updateCart();
+  toast("✅ Agregado al carrito");
+  const c=document.getElementById("cartCount"); c.animate([{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:250});
+}
+function changeQty(id,d){
+  cart[id]=(cart[id]||0)+d;
+  if(cart[id]<=0) delete cart[id];
+  updateCart(); renderCart();
+}
+function removeItem(id){ delete cart[id]; updateCart(); renderCart(); }
+
+function cartCount(){ return Object.values(cart).reduce((a,b)=>a+b,0); }
+function cartSubtotal(){ return Object.entries(cart).reduce((s,[id,q])=>{ const p=PRODUCTS.find(x=>x.id==id); return s+p.price*q; },0); }
+
+function updateCart(){
+  document.getElementById("cartCount").textContent = cartCount();
+  const sub = cartSubtotal();
+  document.getElementById("subtotal").textContent = fmt(sub);
+  document.getElementById("grandTotal").textContent = fmt(sub);
+  document.getElementById("cartFoot").style.display = cartCount()? "block":"none";
+}
+
+function renderCart(){
+  const body=document.getElementById("cartBody");
+  const ids=Object.keys(cart);
+  if(!ids.length){ body.innerHTML=`<div class="empty">🛒<br/><br/>Tu carrito está vacío.<br/>Agregá productos para comprar.</div>`; return; }
+  body.innerHTML = ids.map(id=>{
+    const p=PRODUCTS.find(x=>x.id==id); const q=cart[id];
+    const lithumb = p.image
+      ? `<img src="${p.image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>`
+      : (p.emoji||'📦');
+    return `<div class="line-item">
+      <div class="li-thumb">${lithumb}</div>
+      <div class="li-info">
+        <h4>${p.name}</h4>
+        <div class="li-price">${fmt(p.price)}</div>
+        <div class="qty">
+          <button onclick="changeQty(${id},-1)">−</button>
+          <span>${q}</span>
+          <button onclick="changeQty(${id},1)">+</button>
+        </div>
+        <br/><button class="li-remove" onclick="removeItem(${id})">Quitar</button>
+      </div>
+      <div class="li-sub">${fmt(p.price*q)}</div>
+    </div>`;
+  }).join("");
+}
+
+function openCart(){ renderCart(); document.getElementById("overlay").classList.add("open"); document.getElementById("drawer").classList.add("open"); }
+function closeCart(){ document.getElementById("overlay").classList.remove("open"); document.getElementById("drawer").classList.remove("open"); }
+
+/* ---------- Checkout ---------- */
+function openCheckout(){
+  if(!cartCount()){ toast("Tu carrito está vacío"); return; }
+  closeCart();
+  selectMethod('whatsapp');
+  renderCheckoutSummary();
+  document.getElementById("checkoutModal").classList.add("open");
+  document.getElementById("checkoutContent").scrollTop=0;
+}
+function closeCheckout(){ document.getElementById("checkoutModal").classList.remove("open"); resetForm(); }
+
+function selectMethod(m){
+  currentMethod=m;
+  document.querySelectorAll(".pay-tab").forEach(t=>t.classList.toggle("active",t.dataset.method===m));
+  const cardFields=document.getElementById("cardFields");
+  const info=document.getElementById("paymethodInfo");
+  const btn=document.getElementById("submitBtn");
+  btn.className="submit"; // reset
+  if(m==="whatsapp"){
+    cardFields.style.display="none";
+    info.style.display="block";
+    info.innerHTML="💬 <b>Cierre por WhatsApp.</b> Al enviar, se abre WhatsApp con tu pedido listo. Un asesor confirma stock, envío y forma de pago.";
+    btn.innerHTML="💬 Enviar pedido por WhatsApp"; btn.classList.add("wa"); btn.style.background="";
+  } else if(m==="cod"){
+    cardFields.style.display="none";
+    info.style.display="block";
+    info.innerHTML="📦 <b>Pago contra entrega.</b> Pagás en efectivo cuando recibís el producto. Confirmamos tu pedido por WhatsApp antes de despachar (verificación anti-pedidos falsos).";
+    btn.innerHTML="📦 Confirmar pedido contra entrega"; btn.classList.add("cod");
+  } else {
+    cardFields.style.display="block";
+    info.style.display="none";
+    btn.innerHTML="💳 Pagar de forma segura"; btn.classList.add("pay");
+  }
+}
+
+function renderCheckoutSummary(){
+  const s=document.getElementById("checkoutSummary");
+  const rows=Object.entries(cart).map(([id,q])=>{
+    const p=PRODUCTS.find(x=>x.id==id);
+    return `<div class="l"><span>${q}× ${p.name}</span><span>${fmt(p.price*q)}</span></div>`;
+  }).join("");
+  const sub=cartSubtotal();
+  s.innerHTML = rows +
+    `<div class="l"><span>Envío</span><span>A coordinar</span></div>`+
+    `<div class="l big"><span>Total</span><span>${fmt(sub)}</span></div>`;
+}
+
+/* ---------- Validación ---------- */
+function validate(){
+  const form=document.getElementById("orderForm");
+  const checks=[
+    ["f-name", v=>v.trim().length>=3],
+    ["f-phone", v=>v.replace(/\D/g,'').length>=7],
+    ["f-city", v=>v.trim().length>=2],
+    ["f-dept", v=>v.trim()!==""],
+    ["f-address", v=>v.trim().length>=5]
+  ];
+  let ok=true, firstBad=null;
+  checks.forEach(([fid,fn])=>{
+    const wrap=document.getElementById(fid);
+    const input=wrap.querySelector("input,select");
+    const valid=fn(input.value);
+    wrap.classList.toggle("invalid",!valid);
+    if(!valid){ ok=false; if(!firstBad) firstBad=input; }
+  });
+  if(firstBad) firstBad.focus();
+  return ok;
+}
+
+/* ---------- Envío del pedido a Dropi (contra entrega / pago online) ---------- */
+async function pushOrderToDropi(data){
+  const items=Object.entries(cart).map(([id,q])=>{const p=PRODUCTS.find(x=>x.id==id);return {id:Number(id),qty:q,price:p.price};});
+  try{
+    const r=await fetch("/api/order",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({customer:data,items,payment:currentMethod})
+    });
+    return await r.json();
+  }catch(e){ return {ok:false,error:String(e)}; }
+}
+
+/* ---------- Envío del pedido ---------- */
+document.getElementById("orderForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  if(!validate()){ toast("⚠️ Revisá los datos marcados"); return; }
+  const data=Object.fromEntries(new FormData(this).entries());
+  const orderId="PY"+Date.now().toString().slice(-6);
+  const sub=cartSubtotal();
+  const items=Object.entries(cart).map(([id,q])=>{const p=PRODUCTS.find(x=>x.id==id);return `• ${q}× ${p.name} — ${fmt(p.price*q)}`;}).join("\n");
+
+  if(liveMode && (currentMethod==="cod" || currentMethod==="online")){
+    const btn=document.getElementById("submitBtn");
+    const prev=btn.innerHTML; btn.innerHTML="⏳ Procesando…"; btn.style.pointerEvents="none";
+    const res=await pushOrderToDropi(data);
+    btn.innerHTML=prev; btn.style.pointerEvents="";
+    if(res && res.ok){
+      const realId=res.dropiOrderId||orderId;
+      if(currentMethod==="online" && CONFIG.paymentGatewayUrl){
+        window.location.href=`${CONFIG.paymentGatewayUrl}?order=${realId}&amount=${sub}`; return;
+      }
+      showSuccess(currentMethod, realId, data); return;
+    } else {
+      toast("⚠️ No se pudo crear el pedido. Probá por WhatsApp.");
+    }
+  }
+
+  if(currentMethod==="whatsapp" || currentMethod==="cod"){
+    const tipo = currentMethod==="whatsapp" ? "Consulta/Pedido" : "Pedido CONTRA ENTREGA";
+    const msg =
+`🛒 *NUEVO ${tipo}* (${orderId})
+%0A%0A*Cliente:* ${data.name}
+%0A*Tel:* ${data.phone}
+%0A*Ciudad:* ${data.city}, ${data.dept}
+%0A*Dirección:* ${data.address}
+%0A%0A*Productos:*%0A${items.replace(/\n/g,"%0A")}
+%0A%0A*Total:* ${fmt(sub)}
+%0A*Pago:* ${currentMethod==="cod"?"Contra entrega (efectivo)":"A coordinar"}`;
+    const url=`https://wa.me/${CONFIG.whatsappNumber}?text=${msg}`;
+    window.open(url,"_blank");
+    showSuccess(currentMethod, orderId, data);
+  } else {
+    // PAGO ONLINE
+    if(CONFIG.paymentGatewayUrl){
+      // Redirección real a la pasarela (cuando esté configurada)
+      window.location.href = `${CONFIG.paymentGatewayUrl}?order=${orderId}&amount=${sub}`;
+    } else {
+      // Demo: mostrar confirmación de "pago seguro"
+      showSuccess("online", orderId, data);
+    }
+  }
+});
+
+function showSuccess(method,orderId,data){
+  cart={}; updateCart();
+  const label = method==="online" ? "¡Pago procesado de forma segura!" :
+                method==="cod" ? "¡Pedido confirmado!" : "¡Pedido enviado por WhatsApp!";
+  const detail = method==="online"
+      ? (CONFIG.paymentGatewayUrl? "" : "Modo demostración: conectá tu pasarela de pago (Bancard, Pagopar o dLocal) en la variable <b>paymentGatewayUrl</b> del código para cobrar de verdad.")
+      : "Un asesor se comunicará con vos por WhatsApp para confirmar el envío.";
+  document.getElementById("checkoutContent").innerHTML =
+    `<div class="success">
+       <div class="circle">✓</div>
+       <h3>${label}</h3>
+       <p>Pedido <b>#${orderId}</b> a nombre de <b>${data.name}</b>.<br/>${detail}</p>
+       <button class="submit" style="background:var(--ink);max-width:260px;margin:0 auto" onclick="location.reload()">Seguir comprando</button>
+       <div class="lock-line">🔒 Transacción protegida</div>
+     </div>`;
+}
+
+function resetForm(){
+  // Restaura el formulario si el modal se cierra tras éxito
+  const c=document.getElementById("checkoutContent");
+  if(c.querySelector(".success")) location.reload();
+}
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ---------- WhatsApp links ---------- */
+function waLink(text){ return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(text)}`; }
+document.getElementById("heroWa").href = waLink("Hola! Quiero información sobre los productos 🙌");
+document.getElementById("waFloat").href = waLink("Hola! Vengo de la tienda y quiero hacer una consulta 😊");
+document.getElementById("footWa").href = waLink("Hola! Necesito ayuda con un pedido.");
+
+/* ---------- Init ---------- */
+document.getElementById("year").textContent=new Date().getFullYear();
+renderFilters();
+renderProducts();
+updateCart();
+loadProducts();   // intenta traer el catálogo real de Dropi (si el backend está configurado)
+
+// Cerrar modales con Escape
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeCart(); closeCheckout(); }});
+</script>
+</body>
+</html>
