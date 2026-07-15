@@ -398,8 +398,10 @@ async function handleDropiSelftest(env) {
  * la publicidad por catálogo.
  *
  * Reglas importantes:
- *  - NO oculta los agotados: los marca availability="out of stock" (Meta pide
- *    NO sacarlos del feed para no perder el aprendizaje del anuncio).
+ *  - Disponibilidad = MISMO criterio que la tienda (STOCK_MODE): por defecto
+ *    (dropshipping) TODO va "in stock"; con STOCK_MODE=shopify|dropi respeta el
+ *    stock real. Los agotados se MARCAN "out of stock" (no se sacan del feed,
+ *    así Meta no pierde el aprendizaje del anuncio).
  *  - NUNCA expone datos internos (acá los productos de Shopify no traen costo,
  *    así que no hay margen que filtrar; el feed solo emite campos públicos).
  *  - El identificador (retailer_id de Meta) = id de producto de Shopify, el
@@ -417,12 +419,23 @@ function siteOrigin(env, url) {
   const s = (env.SITE_URL || "").trim().replace(/\/+$/, "");
   return s || url.origin;
 }
-// Disponibilidad real cuando Shopify la conoce (Dropify sincroniza el stock
-// desde Dropi). Si no se conoce (null) => "in stock" (supuesto dropshipping).
-function feedAvailability(p) {
-  if (p._shopAvail === false) return "out of stock";
-  if (p._shopStock != null && Number(p._shopStock) <= 0) return "out of stock";
-  return "in stock";
+// Disponibilidad del feed según STOCK_MODE (el MISMO criterio que usa la tienda):
+//   "off" (default, dropshipping) => SIEMPRE "in stock" (el stock real está en
+//         Dropi, no en Shopify; así Meta no deja de anunciar algo vendible).
+//   "shopify" => usa el inventario real de Shopify (availableForSale / cantidad).
+//   "dropi"   => usa el stock de la API de Dropi cruzado por SKU.
+function feedAvailability(p, mode, dropiMap) {
+  if (mode === "shopify") {
+    if (p._shopAvail === false) return "out of stock";
+    if (p._shopStock != null && Number(p._shopStock) <= 0) return "out of stock";
+    return "in stock";
+  }
+  if (mode === "dropi" && dropiMap) {
+    const sku = (p.sku || "").trim();
+    if (sku && sku in dropiMap) return Number(dropiMap[sku]) > 0 ? "in stock" : "out of stock";
+    return "in stock"; // SKU no mapeado => no ocultar (mismo criterio que la tienda)
+  }
+  return "in stock"; // off (default): dropshipping, todo disponible
 }
 
 // Carga los productos CRUDOS (con campos internos _shop*), SIN filtrar los
@@ -457,7 +470,7 @@ async function loadFeedProducts(env) {
 
 // Convierte los productos crudos en ítems listos para Meta (filtra los que no
 // se pueden anunciar: sin precio o sin foto).
-function buildFeedItems(rawProducts, { origin, brand }) {
+function buildFeedItems(rawProducts, { origin, brand, mode, dropiMap }) {
   const items = [];
   for (const p of rawProducts) {
     if (!p || !p.id) continue;
@@ -473,7 +486,7 @@ function buildFeedItems(rawProducts, { origin, brand }) {
       id: String(p.id),
       title,
       desc,
-      availability: feedAvailability(p),
+      availability: feedAvailability(p, mode, dropiMap),
       condition: "new",
       price: price + " PYG",
       link: origin + "/producto.html?id=" + encodeURIComponent(String(p.id)),
@@ -537,7 +550,10 @@ async function handleFeed(env, url, fmt) {
   catch (e) { return new Response("Error leyendo productos: " + String(e), { status: 502, headers: { ...CORS } }); }
 
   const origin = siteOrigin(env, url), brand = feedBrand(env);
-  const items = buildFeedItems(load.products, { origin, brand });
+  const mode = (env.STOCK_MODE || "off").toLowerCase();
+  let dropiMap = null;
+  if (mode === "dropi") { try { dropiMap = await dropiStock(env); } catch (e) { /* Dropi falló => todo in stock */ } }
+  const items = buildFeedItems(load.products, { origin, brand, mode, dropiMap });
   const body = fmt === "csv" ? feedCsv(items) : feedXml(items, { origin, brand });
   const ct = fmt === "csv" ? "text/csv; charset=utf-8" : "application/xml; charset=utf-8";
   return new Response(body, { status: 200, headers: {
