@@ -417,6 +417,37 @@ async function handleDropiProbe(env, url) {
     return json({ ok: true, hosts });
   }
 
+  // Paso 1b: la API contesta 401 "Access denied" y ECHA la IP en la respuesta.
+  // ¿Es la cabecera equivocada o es que la clave está atada a una IP permitida?
+  if (url.searchParams.get("headers") === "1") {
+    const base = url.searchParams.get("base") || "https://api.dropi.com.py";
+    const variantes = [
+      { "dropi-integration-key": cfg.key },
+      { "Dropi-Integration-Key": cfg.key },
+      { "dropi_integration_key": cfg.key },
+      { "X-Authorization": cfg.key },
+      { Authorization: "Bearer " + cfg.key },
+      { Authorization: cfg.key },
+      { "api-key": cfg.key },
+      { "dropi-integration-key": cfg.key, "User-Agent": "Mozilla/5.0" },
+    ];
+    const out = [];
+    for (const h of variantes) {
+      let r;
+      try {
+        const resp = await fetch(base + "/integrations/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json", ...h },
+          body: JSON.stringify({ pageSize: 5, startData: 0 }),
+        });
+        const t = await resp.text();
+        r = { status: resp.status, crudo: t.slice(0, 220) };
+      } catch (e) { r = { status: null, crudo: String(e) }; }
+      out.push({ cabecera: Object.keys(h).join(" + "), ...r });
+    }
+    return json({ ok: true, base, variantes: out });
+  }
+
   // Paso 2: sobre un host que sí hable JSON, probar rutas/paginación.
   const base = url.searchParams.get("base") || cfg.base;
   const resultados = [];
