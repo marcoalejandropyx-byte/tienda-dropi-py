@@ -367,20 +367,21 @@ async function dropiStock(env) {
 // La API responde 200 pero con 0 productos → probamos rutas y parámetros de
 // paginación distintos hasta dar con la combinación que SÍ devuelve datos.
 // Muestra un recorte del cuerpo CRUDO (nunca el token) para ver la forma real.
+// api.dropi.com.py es un backend Laravel y /integrations/products pide POST.
+// Falta dar con el cuerpo (paginación) que devuelve los productos.
 const DROPI_PRUEBAS = [
-  ["GET", "/integrations/products", null],
-  ["GET", "/integrations/products?pageSize=50&startData=0", null],
-  ["GET", "/integrations/products?startData=0&endData=50", null],
-  ["GET", "/integrations/products?page=1&pageSize=50", null],
-  ["GET", "/integrations/products?limit=50&offset=0", null],
-  ["GET", "/integrations/products?per_page=50&page=1", null],
+  ["POST", "/integrations/products", {}],
   ["POST", "/integrations/products", { pageSize: 50, startData: 0 }],
-  ["GET", "/integrations/products/index?pageSize=50&startData=0", null],
-  ["GET", "/integrations/my-products?pageSize=50&startData=0", null],
-  ["GET", "/integrations/user/products?pageSize=50&startData=0", null],
-  ["GET", "/products?pageSize=50&startData=0", null],
-  ["GET", "/integrations/categories", null],
-  ["GET", "/integrations/orders?pageSize=5&startData=0", null],
+  ["POST", "/integrations/products", { startData: 0, endData: 50 }],
+  ["POST", "/integrations/products", { pageSize: 50, startData: 0, filter: {} }],
+  ["POST", "/integrations/products", { pageSize: 50, startData: 0, textToSearch: "" }],
+  ["POST", "/integrations/products", { page: 1, pageSize: 50 }],
+  ["POST", "/integrations/products", { limit: 50, offset: 0 }],
+  ["POST", "/integrations/products", { pageSize: 50, startData: 0, active: 1 }],
+  ["POST", "/integrations/my-products", { pageSize: 50, startData: 0 }],
+  ["POST", "/integrations/products/index", { pageSize: 50, startData: 0 }],
+  ["POST", "/integrations/categories", {}],
+  ["POST", "/integrations/orders", { pageSize: 5, startData: 0 }],
 ];
 
 // El host configurado devolvía el HTML del panel Angular en vez de JSON:
