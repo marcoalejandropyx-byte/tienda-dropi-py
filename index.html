@@ -97,6 +97,9 @@
   .off{font-size:11px;font-weight:800;color:var(--ok);background:#e7f6ec;padding:2px 7px;border-radius:6px}
   .card .add{margin-top:6px;width:100%;background:var(--brand);color:#fff;padding:11px;border-radius:10px;font-weight:800;font-size:14px}
   .card .add:hover{background:var(--brand-dark)}
+  .card .ask-wa{margin-top:6px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;
+    background:#eafff2;color:var(--wa-dark);border:1px solid #b8f0cf;padding:9px;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none}
+  .card .ask-wa:hover{background:#d8fbe6}
   .metrics{display:flex;gap:10px;font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
   .metrics b{color:var(--ink)}
 
@@ -474,7 +477,8 @@ async function loadProducts(){
         id:p.id, name:p.name, cat:p.category||"General",
         emoji:"\ud83d\udce6", image:p.image||"", price:p.price, old:p.old||Math.round(p.price*1.4),
         score:Math.min(99, 80+(p.id%20)), badge:(p.stock>0?"":"AGOTADO"),
-        badgeType:(p.stock>0?"":"new"), sales:p.sales||"", desc:p.desc||"", stock:p.stock
+        badgeType:(p.stock>0?"":"new"), sales:p.sales||"", desc:p.desc||"", stock:p.stock,
+        sku:p.sku||""   // c\u00f3digo para identificar el producto en WhatsApp
       }));
       liveMode = true;
       renderFilters(); renderProducts(); renderHero();
@@ -543,6 +547,7 @@ function renderProducts(){
           <span class="off">-${off}%</span>
         </div>
         <button class="add" onclick="location.href='${link}'">🛒 Comprar ahora →</button>
+        <a class="ask-wa" href="${waLink(waProductText(p))}" target="_blank" rel="noopener">💬 Consultar por WhatsApp</a>
       </div>
     </article>`;
   }).join("");
@@ -767,6 +772,13 @@ function toast(msg){
 
 /* ---------- WhatsApp links ---------- */
 function waLink(text){ return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(text)}`; }
+/* Mensaje AUTOIDENTIFICADO: incluye código (SKU) + link con ?id= para que el bot
+   sepa exactamente de qué producto habla el cliente y pueda responder/vender. */
+function waProductText(p){
+  const code = p.sku ? p.sku : ("ID-" + p.id);
+  const url  = location.origin + "/producto.html?id=" + p.id;
+  return `Hola! 👋 Quiero más información de este producto:\n\n🛒 ${p.name}\n💵 ${fmt(p.price)}\n🔖 Cód: ${code}\n🔗 ${url}`;
+}
 document.getElementById("heroWa").href = waLink("Hola! Quiero información sobre los productos 🙌");
 document.getElementById("waFloat").href = waLink("Hola! Vengo de la tienda y quiero hacer una consulta 😊");
 document.getElementById("footWa").href = waLink("Hola! Necesito ayuda con un pedido.");

@@ -56,7 +56,7 @@ export default {
     if (url.pathname === "/api/order" && request.method === "POST") return handleOrder(env, request);
     if (url.pathname === "/api/checkout" && request.method === "POST") return handleCheckout(env, request);
     if (url.pathname === "/api/dropi-selftest") return handleDropiSelftest(env);
-    if (url.pathname === "/api/dropi-probe") return handleDropiProbe(env);
+    if (url.pathname === "/api/dropi-probe") return handleDropiProbe(env, url);
     // Feed de catálogo para Meta Ads (Commerce Manager). XML por defecto, CSV opcional.
     if (url.pathname === "/feed.csv") return handleFeed(env, url, "csv");
     if (url.pathname === "/feed.xml" || url.pathname === "/feed") return handleFeed(env, url, "xml");
@@ -383,14 +383,46 @@ const DROPI_PRUEBAS = [
   ["GET", "/integrations/orders?pageSize=5&startData=0", null],
 ];
 
-async function handleDropiProbe(env) {
+// El host configurado devolvía el HTML del panel Angular en vez de JSON:
+// o sea la ruta /api de app.dropi.com.py NO es la API. Probamos otros hosts.
+const DROPI_BASES = [
+  "https://api.dropi.com.py",
+  "https://api.dropi.com.py/api",
+  "https://app.dropi.com.py/api",
+  "https://dropi.com.py/api",
+  "https://api.dropi.co",
+  "https://api.dropi.co/api",
+];
+
+async function handleDropiProbe(env, url) {
   const cfg = dropiCfg(env);
-  if (!cfg.base || !cfg.key) return json({ ok: false, hint: "Falta DROPI_API_BASE o DROPI_KEY" });
+  if (!cfg.key) return json({ ok: false, hint: "Falta DROPI_KEY" });
+
+  // Paso 1: ¿qué host devuelve JSON de verdad?
+  if (url.searchParams.get("bases") === "1") {
+    const hosts = [];
+    for (const base of DROPI_BASES) {
+      const c = { ...cfg, base };
+      const r = await dropiFetchJSON(env, c, "/integrations/products?pageSize=5&startData=0");
+      const esHtml = typeof r.data === "string" && /^\s*<(!doctype|html)/i.test(r.data);
+      hosts.push({
+        base,
+        status: r.status ?? null,
+        tipo: esHtml ? "HTML (panel web, NO es la API)" : (typeof r.data === "object" ? "JSON ✅" : "texto"),
+        error: r.error || null,
+        crudo: typeof r.data === "string" ? r.data.slice(0, 160) : JSON.stringify(r.data).slice(0, 400),
+      });
+    }
+    return json({ ok: true, hosts });
+  }
+
+  // Paso 2: sobre un host que sí hable JSON, probar rutas/paginación.
+  const base = url.searchParams.get("base") || cfg.base;
   const resultados = [];
   for (const [metodo, ruta, cuerpo] of DROPI_PRUEBAS) {
     const init = { method: metodo };
     if (cuerpo) init.body = JSON.stringify(cuerpo);
-    const r = await dropiFetchJSON(env, cfg, ruta, init);
+    const r = await dropiFetchJSON(env, { ...cfg, base }, ruta, init);
     const d = r.data;
     // ¿Cuántos objetos vinieron, en cualquiera de las formas conocidas?
     let n = null;
@@ -409,7 +441,7 @@ async function handleDropiProbe(env) {
     });
   }
   const gano = resultados.find((r) => r.encontrados > 0);
-  return json({ ok: true, ganadora: gano ? gano.prueba : null, resultados });
+  return json({ ok: true, base, ganadora: gano ? gano.prueba : null, resultados });
 }
 
 // Diagnóstico temporal: GET /api/dropi-selftest  (NO expone el token).

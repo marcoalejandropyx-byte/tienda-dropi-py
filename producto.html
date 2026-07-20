@@ -131,6 +131,12 @@ const id = params.get("id");
 let PROD = null;
 document.getElementById("year").textContent = new Date().getFullYear();
 function waLink(t){ return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(t)}`; }
+/* Mensaje AUTOIDENTIFICADO para WhatsApp: código (SKU) + link con ?id= para que
+   el bot/IA sepa exactamente de qué producto se trata y pueda responder y vender. */
+function waProductText(p, intro){
+  const code = p.sku ? p.sku : ("ID-" + (p.id || id));
+  return `${intro}\n\n🛒 ${p.name}\n💵 ${fmt(p.price)}\n🔖 Cód: ${code}\n🔗 ${location.href}`;
+}
 document.getElementById("waFloat").href = waLink("Hola! Quiero consultar por un producto 😊");
 
 async function load(){
@@ -166,7 +172,7 @@ function render(p){
       <div class="cta">
         <button class="btn btn-buy" onclick="buyNow()">💳 Comprar ahora con tarjeta</button>
         <button class="btn btn-ghost" onclick="openCheckout()">💵 O pedir con pago contra entrega</button>
-        <a class="btn btn-wa" href="${waLink('Hola! Quiero pedir: '+p.name+' ('+fmt(p.price)+') '+location.href)}" target="_blank">💬 Consultar por WhatsApp</a>
+        <a class="btn btn-wa" href="${waLink(waProductText(p,'Hola! 👋 Quiero más información de este producto:'))}" target="_blank" rel="noopener">💬 Consultar por WhatsApp</a>
       </div>
       <div class="benefits">
         <div><span class="i">🚚</span> Envío a todo el país</div>
@@ -176,6 +182,8 @@ function render(p){
       </div>
     </div>
     <div class="desc-box"><h2>Descripción</h2><div class="content">${p.descHtml || ("<p>"+(p.desc||"Sin descripción.")+"</p>")}</div></div>`;
+  // El botón flotante de WhatsApp también lleva el producto identificado
+  document.getElementById("waFloat").href = waLink(waProductText(p, "Hola! 👋 Tengo una consulta sobre este producto:"));
 }
 function setMain(url, el){ document.getElementById("mainImg").src = url; document.querySelectorAll(".thumbs img").forEach(t=>t.classList.remove("active")); el.classList.add("active"); }
 
