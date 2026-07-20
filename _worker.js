@@ -517,6 +517,8 @@ async function handleDropiSelftest(env) {
       productsPath: cfg.productsPath, loginPath: cfg.loginPath,
       hasKey: !!cfg.key, hasLogin: !!(cfg.email && cfg.pass),
       stockMode: env.STOCK_MODE || "off",
+      shopifyDomain: env.SHOPIFY_DOMAIN || null,
+      shopifyAdminToken: env.SHOPIFY_ADMIN_TOKEN ? "cargado" : "FALTA",
     },
   };
   if (!cfg.base || (!cfg.key && !(cfg.email && cfg.pass))) {
