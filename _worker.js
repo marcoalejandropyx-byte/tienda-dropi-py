@@ -56,6 +56,7 @@ export default {
     if (url.pathname === "/api/order" && request.method === "POST") return handleOrder(env, request);
     if (url.pathname === "/api/checkout" && request.method === "POST") return handleCheckout(env, request);
     if (url.pathname === "/api/dropi-selftest") return handleDropiSelftest(env);
+    if (url.pathname === "/api/dropi-probe") return handleDropiProbe(env);
     // Feed de catálogo para Meta Ads (Commerce Manager). XML por defecto, CSV opcional.
     if (url.pathname === "/feed.csv") return handleFeed(env, url, "csv");
     if (url.pathname === "/feed.xml" || url.pathname === "/feed") return handleFeed(env, url, "xml");
@@ -360,6 +361,55 @@ async function dropiStock(env) {
     map[sku] = Number.isFinite(qty) ? qty : 0;
   }
   return map;
+}
+
+// Sonda temporal: GET /api/dropi-probe
+// La API responde 200 pero con 0 productos → probamos rutas y parámetros de
+// paginación distintos hasta dar con la combinación que SÍ devuelve datos.
+// Muestra un recorte del cuerpo CRUDO (nunca el token) para ver la forma real.
+const DROPI_PRUEBAS = [
+  ["GET", "/integrations/products", null],
+  ["GET", "/integrations/products?pageSize=50&startData=0", null],
+  ["GET", "/integrations/products?startData=0&endData=50", null],
+  ["GET", "/integrations/products?page=1&pageSize=50", null],
+  ["GET", "/integrations/products?limit=50&offset=0", null],
+  ["GET", "/integrations/products?per_page=50&page=1", null],
+  ["POST", "/integrations/products", { pageSize: 50, startData: 0 }],
+  ["GET", "/integrations/products/index?pageSize=50&startData=0", null],
+  ["GET", "/integrations/my-products?pageSize=50&startData=0", null],
+  ["GET", "/integrations/user/products?pageSize=50&startData=0", null],
+  ["GET", "/products?pageSize=50&startData=0", null],
+  ["GET", "/integrations/categories", null],
+  ["GET", "/integrations/orders?pageSize=5&startData=0", null],
+];
+
+async function handleDropiProbe(env) {
+  const cfg = dropiCfg(env);
+  if (!cfg.base || !cfg.key) return json({ ok: false, hint: "Falta DROPI_API_BASE o DROPI_KEY" });
+  const resultados = [];
+  for (const [metodo, ruta, cuerpo] of DROPI_PRUEBAS) {
+    const init = { method: metodo };
+    if (cuerpo) init.body = JSON.stringify(cuerpo);
+    const r = await dropiFetchJSON(env, cfg, ruta, init);
+    const d = r.data;
+    // ¿Cuántos objetos vinieron, en cualquiera de las formas conocidas?
+    let n = null;
+    if (Array.isArray(d)) n = d.length;
+    else if (d && typeof d === "object") {
+      for (const k of ["objects", "products", "data", "items", "result", "rows"]) {
+        if (Array.isArray(d[k])) { n = d[k].length; break; }
+      }
+    }
+    resultados.push({
+      prueba: metodo + " " + ruta,
+      status: r.status ?? null,
+      encontrados: n,
+      claves: d && typeof d === "object" && !Array.isArray(d) ? Object.keys(d).slice(0, 12) : null,
+      crudo: typeof d === "string" ? d.slice(0, 300) : JSON.stringify(d).slice(0, 500),
+    });
+  }
+  const gano = resultados.find((r) => r.encontrados > 0);
+  return json({ ok: true, ganadora: gano ? gano.prueba : null, resultados });
 }
 
 // Diagnóstico temporal: GET /api/dropi-selftest  (NO expone el token).
