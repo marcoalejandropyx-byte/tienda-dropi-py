@@ -108,11 +108,40 @@ function mapAdminProduct(p) {
     available: true,
     _shopStock: shopStock,   // interno: se elimina antes de responder (ver stripInternal)
     _shopAvail: null,        // interno: Admin usa cantidad, no availableForSale
+    _invItem: v.inventory_item_id ? String(v.inventory_item_id) : "", // interno: para leer el costo
+    cost: 0,                 // costo de proveedor — lo completa attachCosts()
     category: p.product_type || "General",
     descHtml: p.body_html || "",
     desc: clean(p.body_html).slice(0, 140),
     sales: "",
   };
+}
+
+/* ---------------------- COSTO DE PROVEEDOR ----------------------
+ * La API de integración de Dropi bloquea por IP (ver /api/dropi-probe) y
+ * Cloudflare no tiene IP fija, así que NO podemos leer el costo desde Dropi.
+ * Pero Dropify sincroniza el costo de Dropi en el campo "Costo por artículo"
+ * de Shopify, que vive en inventory_item (no en el producto).
+ * Requiere SHOPIFY_ADMIN_TOKEN con permiso read_inventory.
+ * Sin costo no hay margen → sin esto la pestaña Ganadores adivina.
+ */
+async function attachCosts(env, products) {
+  const ids = [...new Set(products.map((p) => p._invItem).filter(Boolean))];
+  if (!ids.length) return products;
+  const costos = {};
+  for (let i = 0; i < ids.length; i += 100) {
+    const lote = ids.slice(i, i + 100);
+    try {
+      const d = await adminGET(env, `/inventory_items.json?ids=${lote.join(",")}&limit=100`);
+      for (const it of d.inventory_items || []) {
+        costos[String(it.id)] = Math.round(Number(it.cost || 0));
+      }
+    } catch (e) { /* sin permiso read_inventory: seguimos con costo 0 */ }
+  }
+  for (const p of products) {
+    if (costos[p._invItem] != null) p.cost = costos[p._invItem];
+  }
+  return products;
 }
 
 /* ------------------------------ LISTA ------------------------------ */
@@ -124,6 +153,7 @@ async function handleProducts(env) {
     try {
       const data = await adminGET(env, "/products.json?limit=250&status=active");
       let products = (data.products || []).map(mapAdminProduct).filter((p) => p.id);
+      products = await attachCosts(env, products);
       products = (await applyStockFilter(env, products)).map(stripInternal);
       return json({ ok: true, configured: true, source: "admin", count: products.length, products },
         200, { "Cache-Control": "public, max-age=120" });
@@ -250,7 +280,7 @@ async function handleCheckout(env, request) {
 
 // Quita los campos internos (_shop*) antes de responder al cliente.
 function stripInternal(p) {
-  const { _shopStock, _shopAvail, ...rest } = p;
+  const { _shopStock, _shopAvail, _invItem, ...rest } = p;
   return rest;
 }
 
