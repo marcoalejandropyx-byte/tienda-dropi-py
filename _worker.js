@@ -57,6 +57,7 @@ export default {
     if (url.pathname === "/api/checkout" && request.method === "POST") return handleCheckout(env, request);
     if (url.pathname === "/api/dropi-selftest") return handleDropiSelftest(env);
     if (url.pathname === "/api/dropi-probe") return handleDropiProbe(env, url);
+    if (url.pathname === "/oauth-callback") return handleOauthCallback(url);
     // Feed de catálogo para Meta Ads (Commerce Manager). XML por defecto, CSV opcional.
     if (url.pathname === "/feed.csv") return handleFeed(env, url, "csv");
     if (url.pathname === "/feed.xml" || url.pathname === "/feed") return handleFeed(env, url, "xml");
@@ -391,6 +392,25 @@ async function dropiStock(env) {
     map[sku] = Number.isFinite(qty) ? qty : 0;
   }
   return map;
+}
+
+// Retorno del permiso OAuth de Shopify. Shopify manda ?code=... acá tras autorizar.
+// Muestra el código en grande para que Marco lo copie y me lo pegue (yo hago el canje
+// por el token con el client_secret, que NO vive en este archivo público).
+function handleOauthCallback(url) {
+  const code = url.searchParams.get("code") || "";
+  const shop = url.searchParams.get("shop") || "";
+  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Permiso listo</title></head>
+<body style="font-family:system-ui,sans-serif;background:#0f172a;color:#fff;text-align:center;padding:32px 18px;margin:0">
+  <div style="font-size:52px">✅</div>
+  <h1 style="margin:8px 0">Permiso concedido</h1>
+  <p style="color:#cbd5e1;font-size:17px">Copiá este código y pegáselo a Claude en el chat:</p>
+  <div style="background:#1e293b;border:2px solid #22c55e;padding:18px;border-radius:14px;font-size:16px;
+       word-break:break-all;margin:18px auto;max-width:560px;font-family:monospace">${code || "(no llegó ningún código)"}</div>
+  <p style="color:#64748b;font-size:14px">Tienda: ${shop || "?"}</p>
+</body></html>`;
+  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
 }
 
 // Sonda temporal: GET /api/dropi-probe
