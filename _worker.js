@@ -759,7 +759,24 @@ async function handleFeed(env, url, fmt) {
   } });
 }
 
-/* --------------- CREAR PEDIDO CONTRA ENTREGA (Admin API) --------------- */
+/* --------------- CREAR PEDIDO CONTRA ENTREGA (Admin API) ---------------
+ * Acepta:
+ *   - variantId + qty            (camino viejo de la landing)
+ *   - items:[{productId|variantId, qty}]   (el bot manda el id del producto; acá se
+ *     resuelve el variantId consultando la primera variante del producto en Shopify)
+ *   - draft:true                 (crea DRAFT ORDER: NO se envía ni lo importa Dropi — para pruebas seguras)
+ * Datos cliente: name, phone, address, city, dept, note, pago ("contra_entrega"|"transferencia")
+ */
+async function shopifyVariantOf(env, productId) {
+  const VERSION = env.SHOPIFY_API_VERSION || "2024-10";
+  const pid = String(productId || "").replace(/\D/g, "");
+  if (!pid) return "";
+  try {
+    const d = await adminGET(env, `/products/${pid}.json?fields=variants`);
+    const v = d.product && d.product.variants && d.product.variants[0];
+    return v ? String(v.id) : "";
+  } catch { return ""; }
+}
 async function handleOrder(env, request) {
   const DOMAIN = env.SHOPIFY_DOMAIN, ADMIN = env.SHOPIFY_ADMIN_TOKEN;
   const VERSION = env.SHOPIFY_API_VERSION || "2024-10";
@@ -769,29 +786,49 @@ async function handleOrder(env, request) {
   try { b = await request.json(); } catch { return json({ ok: false, error: "JSON inválido" }, 400); }
   const name = (b.name || "").trim(), phone = (b.phone || "").trim();
   const address = (b.address || "").trim(), city = (b.city || "").trim(), dept = (b.dept || "").trim();
-  const variantId = String(b.variantId || "").replace(/\D/g, "");
-  const qty = Math.max(1, Number(b.qty || 1));
-  if (name.length < 3 || phone.replace(/\D/g, "").length < 7 || address.length < 5 || !variantId) {
-    return json({ ok: false, error: "Datos incompletos" }, 400);
+
+  // Armar line_items: desde items[] (con productId o variantId) o desde variantId suelto.
+  const rawItems = Array.isArray(b.items) && b.items.length
+    ? b.items
+    : [{ variantId: b.variantId, qty: b.qty }];
+  const line_items = [];
+  for (const it of rawItems) {
+    let vid = String(it.variantId || "").replace(/\D/g, "");
+    if (!vid && it.productId) vid = await shopifyVariantOf(env, it.productId);
+    const q = Math.max(1, Number(it.qty || 1));
+    if (vid) line_items.push({ variant_id: Number(vid), quantity: q });
+  }
+  if (name.length < 3 || phone.replace(/\D/g, "").length < 7 || address.length < 5 || !line_items.length) {
+    return json({ ok: false, error: "Datos incompletos", faltan: {
+      name: name.length < 3, phone: phone.replace(/\D/g, "").length < 7, address: address.length < 5, producto: !line_items.length } }, 400);
   }
   const parts = name.split(" ");
-  const order = { order: {
-    line_items: [{ variant_id: Number(variantId), quantity: qty }],
-    customer: { first_name: parts[0], last_name: parts.slice(1).join(" ") || ".", phone },
-    shipping_address: { first_name: parts[0], last_name: parts.slice(1).join(" ") || ".",
-      address1: address, city: city || dept || "Paraguay", province: dept, country: "Paraguay", phone },
-    financial_status: "pending", inventory_behaviour: "bypass",
-    tags: "landing, contra-entrega", note: "Pedido CONTRA ENTREGA generado desde la landing",
-    send_receipt: false, send_fulfillment_receipt: false,
-  } };
+  const cust = { first_name: parts[0], last_name: parts.slice(1).join(" ") || ".", phone };
+  const ship = { first_name: parts[0], last_name: parts.slice(1).join(" ") || ".",
+    address1: address, city: city || dept || "Paraguay", province: dept, country: "Paraguay", phone };
+  const pago = (b.pago === "transferencia") ? "transferencia" : "contra_entrega";
+  const note = (b.note || "").trim() || ("Pedido " + (pago === "transferencia" ? "TRANSFERENCIA" : "CONTRA ENTREGA") + " — bot WhatsApp");
+
+  // draft:true → draft_order (para probar sin generar envío real ni importarlo Dropi)
+  const isDraft = b.draft === true;
+  const path = isDraft ? "/draft_orders.json" : "/orders.json";
+  const payload = isDraft
+    ? { draft_order: { line_items, customer: cust, shipping_address: ship, note, tags: "bot, prueba" } }
+    : { order: {
+        line_items, customer: cust, shipping_address: ship,
+        financial_status: "pending", inventory_behaviour: "bypass",
+        tags: "bot-whatsapp, " + pago, note,
+        send_receipt: false, send_fulfillment_receipt: false,
+      } };
   try {
-    const r = await fetch(`https://${DOMAIN}/admin/api/${VERSION}/orders.json`, {
+    const r = await fetch(`https://${DOMAIN}/admin/api/${VERSION}${path}`, {
       method: "POST", headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": ADMIN },
-      body: JSON.stringify(order),
+      body: JSON.stringify(payload),
     });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) return json({ ok: false, status: r.status, error: data });
-    return json({ ok: true, orderNumber: data.order && (data.order.name || data.order.order_number), id: data.order && data.order.id });
+    const o = data.order || data.draft_order || {};
+    return json({ ok: true, draft: isDraft, orderNumber: o.name || o.order_number || o.id, id: o.id });
   } catch (err) { return json({ ok: false, error: String(err) }); }
 }
 
