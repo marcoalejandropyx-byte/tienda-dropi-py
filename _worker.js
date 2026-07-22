@@ -416,21 +416,22 @@ async function handleOauthCallback(url, env) {
     <h1>Falta un paso previo</h1>
     <p style="color:#cbd5e1;max-width:560px;margin:12px auto">Todavía no está cargado <b>SHOPIFY_CLIENT_SECRET</b> en Cloudflare.
     Hacé ese paso (te lo indicó Claude) y volvé a abrir el link.</p>`);
-  let d;
+  let d, raw = "";
   try {
     const r = await fetch(`https://${shop}/admin/oauth/access_token`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ client_id: OAUTH_CLIENT_ID, client_secret: env.SHOPIFY_CLIENT_SECRET, code }),
     });
-    d = await r.json();
+    raw = await r.text();
+    try { d = JSON.parse(raw); } catch { d = null; }
   } catch (e) {
     return oauthPage(`<div style="font-size:52px">❌</div><h1>Error de conexión</h1><p>${String(e)}</p>`);
   }
   if (!d || !d.access_token) {
     return oauthPage(`<div style="font-size:52px">❌</div><h1>Shopify no dio el token</h1>
-      <p style="color:#cbd5e1;max-width:560px;margin:12px auto">Suele pasar si el código venció (dura pocos minutos) o el secreto está mal.
-      Volvé a abrir el link para pedir uno nuevo.</p>
-      <div style="color:#64748b;font-size:12px">${JSON.stringify(d).slice(0, 200)}</div>`);
+      <p style="color:#cbd5e1;max-width:560px;margin:12px auto">Suele pasar si el código venció (dura pocos minutos).
+      Volvé a abrir el link que te pasó Claude para pedir uno nuevo.</p>
+      <div style="color:#64748b;font-size:12px;max-width:560px;margin:0 auto;word-break:break-all">${(raw || JSON.stringify(d) || "").slice(0, 300)}</div>`);
   }
   return oauthPage(`<div style="font-size:52px">✅</div>
     <h1 style="margin:8px 0">¡Token obtenido!</h1>
